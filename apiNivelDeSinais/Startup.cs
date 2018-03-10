@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace apiNivelDeSinais
 {
@@ -22,14 +23,33 @@ namespace apiNivelDeSinais
             Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
+		private string GetXmlCommentsPath()
+		{
+			var appDir = System.AppContext.BaseDirectory;
+			return System.IO.Path.Combine(appDir, "apiNivelDeSinaisComments.xml");
+		}
+
+		public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddMvc();
-        }
+
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new Info
+				{
+					Version = "v1",
+					Title = "API Niveis de Sinais - V1",
+					Description = "API Teste para os níveis de sinais de um equipamento",
+					TermsOfService = "None"				
+				});
+
+				c.IncludeXmlComments(GetXmlCommentsPath());
+			});
+		}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -37,7 +57,14 @@ namespace apiNivelDeSinais
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc();
-        }
+			app.UseMvc();
+
+			app.UseSwagger();
+			app.UseSwaggerUI(c =>
+			{
+				c.RoutePrefix = "";
+				c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Niveis de Sinais - V1");
+			});
+		}
     }
 }
