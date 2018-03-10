@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace apiNivelDeSinais.Model
 {
+	/// <summary>
+	/// Sinal do equipamento
+	/// </summary>
     public class Sinal
     {
 		private static decimal GetFator1(string mac)
